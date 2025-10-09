@@ -1,1 +1,444 @@
 # cursor-hls-forge
+
+> **AI + Knowledge Base = Fast HLS Optimization**
+> Stop guessing. Start learning. 15-minute iterations instead of weeks of trial-and-error.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Xilinx%20HLS-blue.svg)](https://www.xilinx.com/)
+[![Vitis HLS](https://img.shields.io/badge/Vitis%20HLS-2022.1-green.svg)](https://www.xilinx.com/products/design-tools/vitis.html)
+
+## What Is This?
+
+**AICOFORGE's second open-source project!** After cursor-fpga-forge (FPGA verification), we're tackling HLS optimization.
+
+**The Big Idea**: AI is creative but forgetful. What if your AI could remember every successful optimization and learn from past designs? That's what we built.
+
+**What You Get**: A knowledge base that captures what works. Query it before optimizing. Record results automatically. Build permanent knowledge that makes every design faster.
+
+**Tech Stack**: Cursor IDE + PostgreSQL Knowledge Base + 287 HLS Rules + Your Design Experience
+
+## The Problem
+
+**HLS optimization is painful**:
+- Try pragma → fail → try another → fail → repeat 50 times
+- AI gives different answers every time (inconsistent)
+- No memory of what worked before
+- Can't learn from past projects
+- Weeks wasted on random experiments
+
+**Sound familiar?** Yeah, we've been there too.
+
+## Our Solution
+
+**Stop guessing. Start learning.**
+
+Instead of hoping AI remembers, we built a system that **never forgets**:
+- Query what worked for similar designs
+- Apply proven optimization patterns
+- Auto-record every result
+- Build knowledge that lasts forever
+
+**Result**: 15 minutes per iteration. Systematic progress. No more random trial-and-error.
+
+<div align="center">
+
+**Real Example: FIR128 Filter**
+
+| What We Did | II Result | Time |
+|-------------|-----------|------|
+| Baseline design | 264 cycles | 15 min |
+| Query KB → merge loops | 134 cycles (-49%) | 15 min |
+| Query KB → pipeline rewind | 128 cycles (-52%) | 15 min |
+| Query KB → array partition | 2 cycles (-99%) ★ | 15 min |
+
+**1 hour total. 132x faster. All knowledge saved for next time.**
+
+</div>
+
+## How It Works
+
+### Old Way (Weeks of Pain)
+```
+Try random pragma → Synthesize → Doesn't work → Try another →
+Doesn't work → Google it → Try again → Maybe works? → Repeat...
+
+✘ No memory
+✘ Random guessing
+✘ Weeks wasted
+```
+
+### New Way (15 Min Per Iteration)
+```
+1. Ask KB: "What worked before?"
+2. Apply proven patterns
+3. Synthesize
+4. Auto-save results
+5. Repeat with smarter suggestions
+
+✓ Learns from every design
+✓ Systematic progress
+✓ Fast iterations
+```
+
+## What You Record
+
+**Super simple** - just the basics:
+
+**Each Design**:
+- What you tried
+- Your code
+- Results (II, latency, resources)
+- Why you tried it
+
+**That's it.** The system handles:
+- Performance tracking
+- Pattern recognition
+- Smart suggestions
+- Historical comparisons
+
+## Live Demo: FIR128 Story
+
+Watch how we went from 264 cycles to 2 cycles in four 15-minute steps:
+
+### Step 1: Baseline (II=264)
+```cpp
+// Two loops - shift then MAC
+for (int i = 127; i > 0; i--)
+    shift_reg[i] = shift_reg[i-1];
+
+for (int i = 0; i < 128; i++)
+    acc += shift_reg[i] * c[i];
+```
+**Result**: Slow. But now we have a baseline.
+
+### Step 2: Query KB → Merge Loops (II=134, -49%)
+```bash
+# Ask: "What works for FIR?"
+# KB says: "Merge loops" (100% success rate)
+```
+```cpp
+// One merged loop
+for (int i = 127; i >= 0; i--) {
+    acc += shift_reg[i] * c[i];
+    shift_reg[i] = (i == 0) ? x : shift_reg[i-1];
+}
+```
+**Result**: 49% faster in 15 minutes.
+
+### Step 3: Query KB → Pipeline Rewind (II=128, -52%)
+```bash
+# Ask: "How to improve pipelined FIR?"
+# KB says: "Add rewind pragma"
+```
+```cpp
+for (int i = 127; i >= 0; i--) {
+    #pragma HLS PIPELINE II=1 rewind  // ← One word change!
+    acc += shift_reg[i] * c[i];
+    shift_reg[i] = (i == 0) ? x : shift_reg[i-1];
+}
+```
+**Result**: Better. But II=128 for 128-tap? That's weird...
+
+### Step 4: Query KB → Array Partition (II=2, -99%!)
+```bash
+# Ask: "II equals tap count - memory problem?"
+# KB says: "Partition the array!"
+```
+```cpp
+static data_t shift_reg[128];
+#pragma HLS ARRAY_PARTITION variable=shift_reg cyclic factor=2
+
+for (int i = 127; i >= 0; i--) {
+    #pragma HLS PIPELINE II=1 rewind
+    #pragma HLS UNROLL factor=2
+    acc += shift_reg[i] * c[i];
+    shift_reg[i] = (i == 0) ? x : shift_reg[i-1];
+}
+```
+**Result**: From 264 to 2 cycles. Done.
+
+**Total time**: 1 hour
+**Without KB**: Weeks (maybe never find array partition)
+
+## Quick Start
+
+**Demo Video**: [Watch cursor + HLS design demo](https://www.youtube.com/watch?v=gq86lMYehMU) - 15-minute optimization walkthrough
+
+### What You Need
+```bash
+- Cursor IDE (free)
+- Vitis HLS 2022.1+
+- Python 3.8+
+- PostgreSQL (we help you set up)
+```
+
+### Setup (5 minutes)
+```bash
+# Get the code
+git clone https://github.com/aicoforge/cursor-hls-forge.git
+cd cursor-hls-forge
+
+# Start knowledge base
+cd knowledge_base
+./setup_kb.sh
+python api_server.py  # Runs on localhost:8000
+
+# Create your project
+mkdir my_design
+cd my_design
+cp ../templates/.cursorrules .  # Tells Cursor about KB
+cursor .  # Open in Cursor
+```
+
+### Your First Optimization (15 minutes)
+```bash
+# In Cursor, just say:
+"Query KB for FIR designs and create optimized version"
+
+# Cursor will:
+1. Check KB for similar designs ✓
+2. Apply proven patterns ✓
+3. Generate optimized code ✓
+4. Run synthesis (you approve) ✓
+5. Save results to KB ✓
+
+# Next iteration: Query KB again with new context
+# Each iteration: 15 minutes, builds on proven knowledge
+```
+
+## Time Breakdown
+
+### What AI + KB Do (Fast)
+- **Query designs**: Instant
+- **Apply patterns**: Seconds
+- **Generate code**: Seconds
+- **Parse results**: Seconds
+- **Save to KB**: Seconds
+
+### What HLS Does (Normal Speed)
+- **Synthesis**: 30 seconds to 5 minutes
+- **Analysis**: Few seconds
+
+**Bottom Line**: 15 minutes per iteration instead of days/weeks of guessing.
+
+### Real Numbers: FIR128
+```
+Iteration 1 (Baseline):       15 min → II=264
+Iteration 2 (Loop merge):     15 min → II=134 (-49%)
+Iteration 3 (Pipeline):       15 min → II=128 (-52%)
+Iteration 4 (Partition):      15 min → II=2 (-99%)
+
+Total: 1 hour, 132x speedup, permanent knowledge created
+```
+
+## Knowledge Base (Simple Version)
+
+**You don't need to understand databases.** Just know:
+
+**When You Ask**:
+```
+"Show me FIR optimizations"
+→ Get proven approaches with real results
+→ See what worked and why
+```
+
+**When You Save**:
+```
+After synthesis:
+→ Results auto-saved
+→ Compared with previous tries
+→ Available for future projects
+```
+
+**What You Get**:
+- Search by type (FIR, FFT, matrix, etc.)
+- Filter by performance
+- Sort by success rate
+- Compare iterations
+
+## Customization
+
+### Different Tools?
+```bash
+# Edit tool configuration
+VITIS_VERSION="2023.2"  # Change version
+```
+
+### Different Device?
+```bash
+# In your TCL file
+set_part {xcvu9p-flga2104-2-i}  # Use your device
+```
+
+### Private KB?
+```bash
+# Run on your server for privacy
+KB_API="http://your-server.company.com:8000"
+# All data stays private
+```
+
+## Tech Stack
+
+**AI Side**:
+- Cursor IDE (any AI works)
+- Knowledge Base API (Python)
+- Auto parsing and recording
+
+**HLS Side**:
+- Vitis HLS 2022.1+ (or Vivado HLS)
+- Xilinx devices (any family)
+- Cross-version support
+
+**Knowledge Base**:
+- PostgreSQL (fast, reliable)
+- 287 official HLS rules
+- Your patterns (grows with use)
+
+## Roadmap
+
+**Now** (Available Today):
+- ✓ Knowledge Base with HLS rules
+- ✓ Design recording
+- ✓ Similar design query
+- ✓ Auto synthesis parsing
+
+**Soon** (Next 3-6 months):
+- Multi-project analytics
+- Pattern recognition
+- Web dashboard
+- Team collaboration
+
+**Later** (6-12 months):
+- Predictive optimization
+- Auto pragma generation
+- Resource-aware tuning
+- Cross-platform knowledge
+
+## Why This Matters
+
+**Engineers waste 60-80% of time on**:
+- ✘ Random pragma trials
+- ✘ Repeating old mistakes
+- ✘ Forgetting what worked
+- ✘ Inconsistent AI answers
+
+**With KB + AI**:
+- ✓ Query proven solutions first
+- ✓ Build permanent knowledge
+- ✓ Learn from every design
+- ✓ Consistent, reproducible results
+
+**Business Impact**:
+- Weeks → Hours for optimization
+- Knowledge survives turnover
+- Every project helps future projects
+- Less trial-and-error waste
+
+## Real Results
+
+**Challenge**: Optimize 128-tap FIR for minimum II
+
+**Old Way** (Weeks):
+- Week 1: Random pragma experiments
+- Week 2: Debug why still slow
+- Week 3: Maybe discover loop merge
+- Week 4+: Still searching for solution
+
+**Our Way** (1 Hour):
+- Hour 1: Systematic KB-driven optimization
+  - 15 min: Baseline
+  - 15 min: Loop merge (KB suggested)
+  - 15 min: Pipeline rewind (KB suggested)
+  - 15 min: Array partition (KB suggested)
+- **Result**: 132x faster, all knowledge saved
+
+## Use Cases
+
+Perfect for:
+
+**Communication**:
+- FIR/IIR filters
+- FFT implementations
+- Error correction codes
+
+**Signal Processing**:
+- Image processing
+- Radar algorithms
+- Software-defined radio
+
+**Computing**:
+- Matrix operations
+- Neural networks
+- Numerical simulations
+
+**Finance**:
+- Option pricing
+- Risk calculations
+- Market data processing
+
+## Services & Support
+
+### Commercial Services
+
+We offer **AI + HLS optimization consulting** at [aicoforge.com](https://aicoforge.com):
+
+**What We Do**:
+- Enterprise KB setup (your private cloud)
+- Custom rule creation
+- Design optimization services
+- Team training
+- Private LLM integration
+
+Contact: kevinjan@aicoforge.com
+
+### Open Source
+
+**We need your help**:
+- Share successful patterns (if you can)
+- Contribute HLS rules
+- Report what works
+- Help others learn
+
+**This works better when we all share knowledge.**
+
+## Connect
+
+- **Website**: [aicoforge.com](https://aicoforge.com)
+- **Mission**: Make HLS optimization systematic, not random
+- **Email**: kevinjan@aicoforge.com
+
+**Join us in building the world's HLS knowledge base.** Every design you record helps everyone.
+
+---
+
+## FAQ
+
+**Q: Do I have to record everything?**  
+A: No. But recording helps future you (and others).
+
+**Q: Is my data private?**  
+A: Yes. You control the KB. Run it anywhere. Share what you want.
+
+**Q: I use Vivado HLS, not Vitis. Works?**  
+A: Yes. Just change tool paths in config.
+
+**Q: Can I use ChatGPT instead of Cursor?**  
+A: Sure. The KB works with any AI. Use what you like.
+
+**Q: How much storage?**  
+A: Tiny. ~10-50KB per design. 1000 designs = ~50MB.
+
+**Q: My design is totally different. Still useful?**  
+A: Yes. Start with 287 general rules, then build your domain knowledge.
+
+---
+
+## License
+
+MIT License - see LICENSE file.
+
+## Thanks
+
+Built by AICOFORGE team. Thanks to the HLS community for sharing knowledge.
+
+**Let's make HLS optimization fast, predictable, and systematic!**
