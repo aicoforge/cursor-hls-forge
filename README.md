@@ -465,34 +465,34 @@ Contact: kevinjan@aicoforge.com
 
 ## FAQ
 
-**Q: Do I have to record everything?**
+**Q: Do I have to record everything?**  
 A: No. But recording helps future you (and others).
 
-**Q: Is my data private?**
+**Q: Is my data private?**  
 A: Yes. You control the KB. Run it anywhere. Share what you want.
 
-**Q: I use Vivado HLS, not Vitis. Works?**
+**Q: I use Vivado HLS, not Vitis. Works?**  
 A: Yes. Just change tool paths in config.
 
-**Q: Can I use ChatGPT instead of Cursor?**
+**Q: Can I use ChatGPT instead of Cursor?**  
 A: Sure. The KB works with any AI. Use what you like.
 
-**Q: How much storage?**
+**Q: How much storage?**  
 A: Tiny. ~10-50KB per design. 1000 designs = ~50MB.
 
-**Q: My design is totally different. Still useful?**
+**Q: My design is totally different. Still useful?**  
 A: Yes. Start with 287 general rules, then build your domain knowledge.
 
-**Q: Can I reproduce the FIR128 results exactly?**
+**Q: Can I reproduce the FIR128 results exactly?**  
 A: Iterations #1-#3 are fully reproducible (rules P001, P002 in KB).
 Iteration #4 requires adding array partition knowledge to your KB first.
 This is intentional - the system learns from YOUR breakthroughs.
 
-**Q: What if KB doesn't have the rule I need?**
+**Q: What if KB doesn't have the rule I need?**  
 A: That's when YOU discover it! Apply your HLS expertise, record the success,
 and now your KB has that knowledge forever. Next project starts smarter.
 
-**Q: How do I add my own rules?**
+**Q: How do I add my own rules?**  
 A: After a successful optimization, document it as a user rule (P003, P004, etc.).
 Use the provided SQL scripts or API endpoints. Your rule becomes queryable immediately.
 
