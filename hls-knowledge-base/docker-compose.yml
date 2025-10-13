@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hls_knowledge_db
+    environment:
+      POSTGRES_DB: hls_knowledge
+      POSTGRES_USER: hls_user
+      POSTGRES_PASSWORD: hls_pass_2024
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: hls_kb_api
+    environment:
+      DATABASE_URL: postgresql://hls_user:hls_pass_2024@postgres:5432/hls_knowledge
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped 
+
+volumes:
+  postgres_data:

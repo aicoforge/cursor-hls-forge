@@ -1,0 +1,32 @@
+---
+alwaysApply: false
+---
+# User Prompts - Project-Specific HLS Optimization Techniques
+# These prompts are derived from actual project optimization experiences
+# and complement the official HLS rules (R###)
+
+# FIR Optimization Prompts
+- [P001] Merge related operations into single loops when possible by combining shifting, selection, and computation using conditionals (e.g., ternaries) to reduce loop-carried dependencies and hazards.
+- [P002] Apply #pragma HLS PIPELINE II=1 rewind to performance-critical loops, including finite-iteration loops, to enable overlapping execution of successive iterations without gaps.
+- [P003] Use ternary operators to conditionally select values within a single loop iteration, avoiding the need for separate conditional branches that may increase II.
+
+# CORDIC Optimization Prompts
+- [P004] Replace floating-point multiplication with bit-shift operations in CORDIC algorithms to reduce DSP usage while maintaining precision.
+- [P005] Completely partition lookup tables using #pragma HLS ARRAY_PARTITION complete when targeting II=1, allowing parallel access to all table elements.
+- [P006] Pre-rotate input coordinates to the convergence range before starting CORDIC iterations to avoid complex quadrant handling logic.
+
+# General Loop Optimization Prompts
+- [P007] When combining multiple operations in a loop, carefully analyze data dependencies to ensure operations can be overlapped without unintended serialization.
+- [P008] For operations that naturally produce multiple values per iteration, consider using struct returns or output arrays to maintain II=1.
+- [P009] When loop-carried dependencies cannot be eliminated, consider loop unrolling by a small factor to expose more parallelism opportunities.
+
+# Memory Optimization Prompts
+- [P010] For arrays accessed with constant strides, use cyclic partitioning to distribute accesses across multiple banks.
+- [P011] When array size is a power of 2, use block partitioning for simpler address decoding and potentially better timing.
+- [P012] For shift registers or sliding windows, consider using circular buffers with modulo addressing to reduce storage requirements.
+
+# Interface Optimization Prompts
+- [P013] For streaming interfaces with variable-length packets, add explicit FIFO depth=<N> to prevent deadlock during back-to-back transfers.
+- [P014] When interfacing with external memory, use burst transfers with #pragma HLS INTERFACE m_axi bundle=<name> depth=<N> to improve bandwidth utilization.
+- [P015] For control signals that change infrequently, use s_axilite interface with appropriate offsets to reduce hardware overhead.
+
