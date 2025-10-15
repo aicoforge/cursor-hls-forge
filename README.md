@@ -199,6 +199,232 @@ for (int i = 127; i >= 0; i--) {
 
 **Demo Video**: [Watch cursor + HLS design demo](https://www.youtube.com/watch?v=gq86lMYehMU) - 15-minute optimization walkthrough
 
+## User & Cursor Interaction Examples
+
+### Example 1. Knowledge Base Query (Click to expand):
+
+<details>
+<summary>💬 <b>Example Conversation: Query FIR Design Iterations</b></summary>
+
+---
+
+**👤 User**:
+> Please list all fir design iterations from the knowledge base
+
+---
+
+**🤖 Cursor**:
+> I'll help you query the FIR design iterations from the knowledge base.
+>
+> First, let me connect to the knowledge base API:
+
+```bash
+curl -s "http://localhost:8000/api/design/similar?project_type=fir&limit=20" | jq '.'
+```
+
+```json
+{
+  "query": {
+    "project_type": "fir",
+    "target_ii": null,
+    "limit": 20
+  },
+  "results": [
+    {
+      "iteration_id": "310f81d0-4040-4b82-809b-1bce2344bcb2",
+      "project_id": "550e8400-e29b-41d4-a716-446655440001",
+      "project_name": "FIR128_Optimization_Demo",
+      "project_type": "fir",
+      "iteration_number": 4,
+      "approach_description": "Applied array partition (cyclic factor=2) and partial unroll (factor=2)",
+      "pragmas_used": [
+        "#pragma HLS ARRAY_PARTITION variable=shift_reg cyclic factor=2 dim=1",
+        "#pragma HLS PIPELINE II=1 rewind",
+        "#pragma HLS UNROLL factor=2"
+      ],
+      "ii_achieved": 2,
+      "latency_cycles": 131,
+      "resource_usage": "{\"FF\": 220, \"DSP\": 2, \"LUT\": 314, \"BRAM_18K\": 3}",
+      "created_at": "2025-10-13T11:19:27.596009"
+    },
+    {
+      "iteration_id": "3c9bd6f4-5ae3-4761-aa91-f144b978df02",
+      "project_name": "FIR128_Optimization_Demo",
+      "iteration_number": 3,
+      "approach_description": "Applied pipeline rewind optimization to merged loop",
+      "pragmas_used": ["#pragma HLS PIPELINE II=1 rewind"],
+      "ii_achieved": 128,
+      "created_at": "2025-10-10T18:56:38.347312"
+    },
+    {
+      "iteration_id": "95aa91cf-a5cc-43da-adaa-437698b62bf1",
+      "project_name": "FIR128_Optimization_Demo",
+      "iteration_number": 2,
+      "approach_description": "Merged shift and MAC into single loop using ternary operator",
+      "pragmas_used": ["#pragma HLS PIPELINE II=1"],
+      "ii_achieved": 134,
+      "created_at": "2025-10-08T18:56:38.347312"
+    },
+    {
+      "iteration_id": "3e0a7fdd-8ceb-4912-a5fa-5d4ff3f65676",
+      "project_name": "FIR128_Optimization_Demo",
+      "iteration_number": 1,
+      "approach_description": "Baseline design with separate shift and MAC loops",
+      "pragmas_used": ["#pragma HLS PIPELINE II=1"],
+      "ii_achieved": 264,
+      "created_at": "2025-10-06T18:56:38.347312"
+    }
+  ]
+}
+```
+
+> Perfect! Successfully queried FIR design iterations from the knowledge base. Here's the complete list:
+
+---
+
+## 📊 FIR Design Iterations in Knowledge Base
+
+**Project**: `FIR128_Optimization_Demo`
+**Project ID**: `550e8400-e29b-41d4-a716-446655440001`
+**Total Iterations**: **4**
+
+---
+
+### 🏆 Iteration #4 (Best Performance) ⭐
+
+- **Iteration ID**: `310f81d0-4040-4b82-809b-1bce2344bcb2`
+- **II Achieved**: **2 cycles** ✨
+- **Target II**: 1 cycle
+- **Latency**: 131 cycles
+- **Optimization Approach**: Array partition (cyclic factor=2) + Partial unroll (factor=2)
+- **Pragmas**:
+  ```cpp
+  #pragma HLS INTERFACE ap_none port=y
+  #pragma HLS INTERFACE ap_none port=x
+  #pragma HLS ARRAY_PARTITION variable=shift_reg cyclic factor=2 dim=1
+  #pragma HLS PIPELINE II=1 rewind
+  #pragma HLS UNROLL factor=2
+  ```
+- **Resource Usage**:
+  - DSP: 2
+  - LUT: 314
+  - FF: 220
+  - BRAM_18K: 3
+- **Created**: 2025-10-13
+
+---
+
+### 📈 Iteration #3
+
+- **Iteration ID**: `3c9bd6f4-5ae3-4761-aa91-f144b978df02`
+- **II Achieved**: 128 cycles
+- **Target II**: 1 cycle
+- **Optimization Approach**: Pipeline rewind optimization to merged loop
+- **Pragmas**:
+  ```cpp
+  #pragma HLS PIPELINE II=1 rewind
+  ```
+- **Resource Usage**: DSP: 1
+- **Created**: 2025-10-10
+
+---
+
+### 📈 Iteration #2
+
+- **Iteration ID**: `95aa91cf-a5cc-43da-adaa-437698b62bf1`
+- **II Achieved**: 134 cycles
+- **Target II**: 1 cycle
+- **Optimization Approach**: Merged shift and MAC into single loop using ternary operator
+- **Pragmas**:
+  ```cpp
+  #pragma HLS PIPELINE II=1
+  ```
+- **Resource Usage**: DSP: 1
+- **Created**: 2025-10-08
+
+---
+
+### 📊 Iteration #1 (Baseline)
+
+- **Iteration ID**: `3e0a7fdd-8ceb-4912-a5fa-5d4ff3f65676`
+- **II Achieved**: 264 cycles
+- **Target II**: 1 cycle
+- **Optimization Approach**: Baseline design with separate shift and MAC loops
+- **Pragmas**:
+  ```cpp
+  #pragma HLS PIPELINE II=1
+  ```
+- **Resource Usage**: DSP: 1
+- **Created**: 2025-10-06
+
+---
+
+## 📉 Performance Improvement Journey
+
+```
+Iteration #1 (Baseline):          II = 264 cycles ████████████████████████████████████████████
+          ↓ (-49.2%)
+Iteration #2 (Loop Merge):        II = 134 cycles ██████████████████████
+          ↓ (-4.5%)
+Iteration #3 (Pipeline Rewind):   II = 128 cycles █████████████████████
+          ↓ (-98.4%) 🚀
+Iteration #4 (Array Partition):   II = 2 cycles   █
+
+Total Improvement: 264 → 2 cycles (-99.2%)
+```
+
+---
+
+## 🔑 Key Optimization Techniques Summary
+
+| Iteration | Optimization Technique | II Improvement | Performance Gain |
+|-----------|------------------------|----------------|------------------|
+| **#2** | Loop Merge | 264 → 134 | -49.2% |
+| **#3** | Pipeline Rewind | 134 → 128 | -4.5% |
+| **#4** | Array Partition + Unroll | 128 → 2 | **-98.4%** 🏆 |
+
+---
+
+## 🎯 Optimization Techniques Explained
+
+### 1️⃣ Loop Merge (Iteration #2)
+- **Technique**: Used ternary operator to merge shift and MAC into a single loop
+- **Effect**: Eliminated loop overhead, reduced by 130 cycles
+- **Use Case**: When multiple related loops can be merged
+
+### 2️⃣ Pipeline Rewind (Iteration #3)
+- **Technique**: Enabled pipeline rewind optimization for bounded loops
+- **Effect**: Enabled overlapping execution of iterations, reduced by 6 cycles
+- **Use Case**: Pipeline optimization for loops with known bounds
+
+### 3️⃣ Array Partition + Unroll (Iteration #4) ⭐
+- **Technique**: Memory partitioning (cyclic factor=2) + Loop unrolling (factor=2)
+- **Effect**: Broke through memory bottleneck, 128 → 2 cycles (**-98.4%**)
+- **Key Point**: Partition factor must match unroll factor to achieve optimal results
+- **Use Case**: When II value is close to array size (memory port bottleneck)
+
+---
+
+**🤖 Cursor**:
+> 💡 **If you want to further optimize or create new FIR designs**:
+>
+> 1. **Reference Iteration #4** - Already achieved II=2 (close to theoretical best of II=1)
+> 2. **Learn Best Practices** - Array partition + Unroll combination is highly effective for memory-intensive designs
+> 3. **View Complete Code**:
+>    ```bash
+>    curl "http://localhost:8000/api/design/310f81d0-4040-4b82-809b-1bce2344bcb2/code" | jq -r '.code_snapshot'
+>    ```
+>
+> 4. **Golden Rule**: When using Array Partition, the Unroll factor should match the Partition factor (e.g., both set to 2) to fully utilize memory bandwidth
+>
+> Would you like me to help you view the complete code for any specific iteration or create a new optimized version?
+
+---
+
+</details>
+
+---
+
 ### What You Need
 ```bash
 - Cursor IDE (free)
