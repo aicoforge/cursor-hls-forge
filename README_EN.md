@@ -130,7 +130,7 @@ flowchart TB
         AI3["Intelligent Error Diagnosis"]
     end
     
-    subgraph KB["Knowledge Base Layer (PostgreSQL)"]
+    subgraph KB["KB Layer (PostgreSQL)"]
         KB1["300+ Optimization Rules"]
         KB2["Historical Designs"]
         KB3["Best Practices"]
