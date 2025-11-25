@@ -10,7 +10,7 @@
 
 ## Overview
 
-**Cursor-HLS-Forge** is the core open-source component of the AICOFORGE platform, demonstrating how AI agents (Cursor IDE) combined with a structured knowledge base (PostgreSQL) can automate HLS/FPGA design optimization and verification.
+**Cursor-HLS-Forge** is the core technology of the AICOFORGE platform, demonstrating how AI agents (Cursor IDE) combined with a structured knowledge base (PostgreSQL) can automate HLS/FPGA design optimization and verification.
 
 ### Key Metrics
 
@@ -118,6 +118,72 @@ Initial run output:
 
 ---
 
+### Demo 3: Design Systolic Array WITHOUT vs WITH KB Architecture Patterns
+
+**Video**: [cursor-hls-demo：design_systolic_without_KB_patterns_vs_with_KB_patterns](https://youtu.be/ERsgSPnBJZo)
+
+#### Workflow
+
+**User Input**:
+> "design an 8x8 systolic array for matrix multiplication. first attempt without query KB architecture patterns, then attempt with KB architecture patterns, compare both results"
+
+**AI Agent Execution**:
+
+1. **Environment Check** — Verify Vitis HLS availability
+2. **Baseline Design** — Design 8x8 systolic array without KB query
+3. **KB Query** — Call KB API to retrieve systolic architecture patterns and optimization rules
+4. **Optimized Design** — Redesign applying KB architecture patterns
+5. **Synthesis Verification** — Run csim/csynth for both designs
+6. **Comparative Analysis** — Generate comprehensive comparison report
+
+#### KB Query Results
+
+```bash
+# Query similar designs
+curl "http://192.168.1.11:8000/api/design/similar?project_type=matmul&limit=10"
+
+# Reference design retrieved: Systolic8x8_Wavefront
+# Architecture: Boundary injection + single time-loop (t=0..3N-3)
+# Key Pragmas: a_pipe/b_pipe complete partition, PIPELINE II=1, full UNROLL
+```
+
+#### Optimization Journey
+
+| Design Stage | II | Speedup | KB Knowledge Applied |
+|:---|:---:|:---:|:---|
+| Baseline (No KB) | 588 | — | None |
+| With KB Rules (no input partition) | 73 | 8x | P003, P004, R035, P099 |
+| Complete Input Array Partition | **1** | 73x | + Input Array Partition |
+| Stream Interface Design | **1** | 73x | + KB Reference Pattern (Streams) |
+
+**Total Performance Improvement: 588x** (II: 588 → 1)
+
+#### Key KB Rules
+
+| Rule Code | Description |
+|:---:|:---|
+| P099 | Input skew logic (most common systolic error) |
+| P003 | Completely overlap load/compute/store |
+| P004 | No cross-iteration dependencies |
+| R035 | Pipeline innermost loops |
+
+#### Final Results
+
+```
+✓ Baseline Design:
+  II=588, Latency=N/A, DSP=1, LUT=558, FF=123
+
+✓ II=1 Partitioned Design:
+  II=1, Latency=45 cycles, Pipeline Depth=4, Fmax=271.15 MHz
+
+✓ II=1 Stream Design (KB Reference Pattern):
+  II=1, Latency=~22 cycles/batch, Pipeline Depth=5, Fmax=144.68 MHz
+
+Conclusion: KB architecture patterns achieved 588x performance improvement!
+```
+
+---
+
 ## System Architecture
 
 ```mermaid
@@ -209,4 +275,31 @@ MIT License
 
 AICOFORGE is an AI Agent + FPGA Automated Design Verification platform, dedicated to making hardware development as agile as software. We collaborate with Professor Jiin Lai (former VIA Technologies CTO & Co-founder) from National Taiwan University's Department of Electrical Engineering to develop LLM2HLS theoretical technology, combining academic innovation with industry experience.
 
-**Contact**: kevinjan@aicoforge.com
+---
+
+## System Architecture & Technical Source
+
+### AICOFORGE Platform
+
+The HLS Knowledge Base System developed by **AICOFORGE** includes:
+
+- Knowledge Base Architecture (PostgreSQL + FastAPI)
+- Base Rule Library (Official Rules)
+- AI Inference Framework (.cursorrules Integration)
+
+### License Statement
+
+AICOFORGE platform offers an academic open-source version. Contact us to obtain the source code and documentation:
+
+**Permitted Use**
+- Non-commercial teaching and research
+- Academic publication
+- Open-source project contribution
+
+**Restricted Use**
+- Commercial product development
+- Technology sublicensing
+- Complete system replication for sale
+
+**Technical Source**: [github.com/aicoforge](https://github.com/aicoforge)  
+**Commercial Cooperation**: kevinjan@aicoforge.com
