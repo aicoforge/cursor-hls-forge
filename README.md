@@ -10,7 +10,7 @@
 
 ## 專案簡介
 
-**Cursor-HLS-Forge** 是 AICOFORGE 平台的核心開源元件，展示如何透過 AI 代理（Cursor IDE）結合結構化知識庫（PostgreSQL），實現 HLS/FPGA 設計的自動化優化與驗證。
+**Cursor-HLS-Forge** 是 AICOFORGE 平台的核心技術，展示如何透過 AI 代理（Cursor IDE）結合結構化知識庫（PostgreSQL），實現 HLS/FPGA 設計的自動化優化與驗證。
 
 ### 核心價值
 
@@ -118,6 +118,72 @@ API 回應：  {"detail": "Input should be less than or equal to 20"}
 
 ---
 
+### Demo 3：無 KB 架構模板 vs 有 KB 架構模板設計 Systolic Array
+
+**影片連結**：[cursor-hls-demo：design_systolic_without_KB_patterns_vs_with_KB_patterns](https://youtu.be/ERsgSPnBJZo)
+
+#### 操作流程
+
+**使用者輸入**：
+> "design an 8x8 systolic array for matrix multiplication. first attempt without query KB architecture patterns, then attempt with KB architecture patterns, compare both results"
+
+**AI 代理執行過程**：
+
+1. **環境確認** — 確認 Vitis HLS 工具可用
+2. **基準設計** — 不查詢 KB，直接設計 8x8 systolic array
+3. **知識庫查詢** — 呼叫 KB API 取得 systolic 架構模板與優化規則
+4. **優化設計** — 應用 KB 中的架構模板進行重新設計
+5. **合成驗證** — 分別執行 csim/csynth 驗證兩種設計
+6. **比較分析** — 產出完整比較報告
+
+#### KB 查詢結果
+
+```bash
+# 查詢相似設計
+curl "http://192.168.1.11:8000/api/design/similar?project_type=matmul&limit=10"
+
+# 取得參考設計：Systolic8x8_Wavefront
+# 架構特徵：Boundary injection + single time-loop (t=0..3N-3)
+# 關鍵 Pragmas：a_pipe/b_pipe complete partition, PIPELINE II=1, full UNROLL
+```
+
+#### 優化歷程
+
+| 設計階段 | II | 提升倍數 | 應用的 KB 知識 |
+|:---|:---:|:---:|:---|
+| Baseline（無 KB） | 588 | — | 無 |
+| 應用 KB 規則（無輸入分割） | 73 | 8x | P003, P004, R035, P099 |
+| 完整輸入陣列分割 | **1** | 73x | + Input Array Partition |
+| 串流介面設計 | **1** | 73x | + KB 參考模板（Streams） |
+
+**總效能提升：588x**（II: 588 → 1）
+
+#### 關鍵 KB 規則
+
+| 規則代碼 | 說明 |
+|:---:|:---|
+| P099 | Input skew logic（最常見 systolic 錯誤） |
+| P003 | 完整重疊 load/compute/store |
+| P004 | 無跨迭代相依性 |
+| R035 | Pipeline 最內層迴圈 |
+
+#### 最終結果
+
+```
+✓ Baseline Design:
+  II=588, Latency=N/A, DSP=1, LUT=558, FF=123
+
+✓ II=1 Partitioned Design:
+  II=1, Latency=45 cycles, Pipeline Depth=4, Fmax=271.15 MHz
+
+✓ II=1 Stream Design (KB Reference Pattern):
+  II=1, Latency=~22 cycles/batch, Pipeline Depth=5, Fmax=144.68 MHz
+
+結論：KB 架構模板實現 588x 效能提升！
+```
+
+---
+
 ## 系統架構
 
 ```mermaid
@@ -209,4 +275,31 @@ MIT License
 
 AICOFORGE 是一個 AI 代理 + FPGA 自動設計驗證平台，致力於讓硬體開發像軟體一樣敏捷。我們與台灣大學電機系賴瑾教授（前威盛電子 CTO 暨創辦人）共同研發 LLM2HLS 理論技術，結合學術創新與產業實戰經驗。
 
-**聯絡我們**：kevinjan@aicoforge.com
+---
+
+## 系統架構與技術來源
+
+### AICOFORGE 平台
+
+**AICOFORGE** 開發的 HLS Knowledge Base System 包含：
+
+- 知識庫架構（PostgreSQL + FastAPI）
+- 基礎規則庫（官方規則）
+- AI 推理框架（.cursorrules 整合）
+
+### 授權聲明
+
+AICOFORGE 平台提供學術開源版本，與我們聯繫後可取得程式碼與文件：
+
+**允許使用範圍**
+- 非商業性教學研究
+- 學術成果發表
+- 開源專案貢獻
+
+**限制使用範圍**
+- 營利性產品開發
+- 技術轉授權
+- 完整系統複製販售
+
+**技術來源**：[github.com/aicoforge](https://github.com/aicoforge)  
+**商業合作**：kevinjan@aicoforge.com
