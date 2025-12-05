@@ -50,7 +50,7 @@ Iteration #1   →   #2   →   #3   →   #4   →   #5
 
 ### Demo 1: Query All FIR Design Iterations from Knowledge Base
 
-**Video**: [cursor-hls-demo：list_all_fir_design_iters_from_KB](https://youtu.be/FWsERNTDri4)
+**Video**: [cursor-hls-demo：list all fir design iters from KB](https://youtu.be/FWsERNTDri4)
 
 #### Workflow
 
@@ -79,7 +79,7 @@ Success:        Retrieved 5 FIR design iteration records
 
 ### Demo 2: Reproduce FIR Design Iteration #5 from Knowledge Base
 
-**Video**: [cursor-hls-demo：reproduce_fir_design_iter5_from_KB](https://youtu.be/5d8HyciMdag)
+**Video**: [cursor-hls-demo：reproduce fir design iter5 from KB](https://youtu.be/5d8HyciMdag)
 
 #### Workflow
 
@@ -120,7 +120,7 @@ Initial run output:
 
 ### Demo 3: Design Systolic Array WITHOUT vs WITH KB Architecture Patterns
 
-**Video**: [cursor-hls-demo：design_systolic_without_KB_patterns_vs_with_KB_patterns](https://youtu.be/ERsgSPnBJZo)
+**Video**: [cursor-hls-demo：design systolic without KB patterns vs with KB patterns](https://youtu.be/ERsgSPnBJZo)
 
 #### Workflow
 
