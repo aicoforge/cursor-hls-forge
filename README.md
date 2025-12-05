@@ -50,7 +50,7 @@ Iteration #1   →   #2   →   #3   →   #4   →   #5
 
 ### Demo 1：從知識庫查詢所有 FIR 設計迭代
 
-**影片連結**：[cursor-hls-demo：list_all_fir_design_iters_from_KB](https://youtu.be/FWsERNTDri4)
+**影片連結**：[cursor-hls-demo：list all fir design iters from KB](https://youtu.be/FWsERNTDri4)
 
 #### 操作流程
 
@@ -79,7 +79,7 @@ API 回應：  {"detail": "Input should be less than or equal to 20"}
 
 ### Demo 2：重現知識庫中的 FIR 設計 Iteration #5
 
-**影片連結**：[cursor-hls-demo：reproduce_fir_design_iter5_from_KB](https://youtu.be/5d8HyciMdag)
+**影片連結**：[cursor-hls-demo：reproduce fir design iter5 from KB](https://youtu.be/5d8HyciMdag)
 
 #### 操作流程
 
@@ -120,7 +120,7 @@ API 回應：  {"detail": "Input should be less than or equal to 20"}
 
 ### Demo 3：無 KB 架構模板 vs 有 KB 架構模板設計 Systolic Array
 
-**影片連結**：[cursor-hls-demo：design_systolic_without_KB_patterns_vs_with_KB_patterns](https://youtu.be/ERsgSPnBJZo)
+**影片連結**：[cursor-hls-demo：design systolic without KB patterns vs with KB patterns](https://youtu.be/ERsgSPnBJZo)
 
 #### 操作流程
 
